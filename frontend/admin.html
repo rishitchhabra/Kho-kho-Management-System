@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin | Kho Kho Premier League</title>
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+
+<body>
+    <header>
+        <div class="header-left">
+            <h1>⚙️ Admin Panel</h1>
+            <p class="subtitle">Manage Teams, Pools & Matches</p>
+        </div>
+        <div class="header-right">
+            <select id="filter">
+                <option value="male">👨 Male</option>
+                <option value="female">👩 Female</option>
+            </select>
+            <a href="index.html" class="back-btn">🏠 Home</a>
+            <a href="add-team.html" class="add-btn" id="addTeamBtn" style="display: none;">+ Add Team</a>
+            <button id="logoutBtn" class="logout-btn">🚪 Logout</button>
+        </div>
+    </header>
+
+    <!-- Tab Navigation -->
+    <nav class="tab-nav">
+        <button class="tab-btn active" data-tab="teams">👥 Teams</button>
+        <button class="tab-btn" data-tab="pools">🏊 Pools</button>
+        <button class="tab-btn" data-tab="matches">⚔️ Matches</button>
+        <button class="tab-btn" data-tab="users" id="usersTabBtn" style="display: none;">👤 Users</button>
+    </nav>
+
+    <main>
+        <!-- Teams Tab -->
+        <section id="teamsTab" class="tab-content active">
+            <div class="section-header">
+                <h2>Team Management</h2>
+            </div>
+            <div id="teamGrid" aria-live="polite"></div>
+            <div id="emptyState" class="empty-state" hidden>
+                <div class="empty-icon">📋</div>
+                <h3>No teams found</h3>
+                <p>Add teams to get started.</p>
+                <a href="add-team.html" class="btn-primary">+ Add Team</a>
+            </div>
+        </section>
+
+        <!-- Pools Tab -->
+        <section id="poolsTab" class="tab-content">
+            <div class="section-header">
+                <h2>Pool Management</h2>
+                <button id="createPoolBtn" class="btn-primary" style="display: none;">+ Create Pool</button>
+            </div>
+            <div id="poolGrid" class="pool-grid"></div>
+            <div id="poolEmptyState" class="empty-state" hidden>
+                <div class="empty-icon">🏊</div>
+                <h3>No pools created</h3>
+                <p>Create a pool to organize teams.</p>
+            </div>
+        </section>
+
+        <!-- Matches Tab -->
+        <section id="matchesTab" class="tab-content">
+            <!-- Upcoming Matches -->
+            <div class="section-header">
+                <div>
+                    <h2>⚔️ Upcoming Matches</h2>
+                    <p class="section-subtitle">Drag to reorder matches</p>
+                </div>
+                <button id="saveMatchOrder" class="btn-primary" style="display: none;">💾 Save Order</button>
+            </div>
+            <div id="matchList" class="match-list"></div>
+            <div id="matchEmptyState" class="empty-state" hidden>
+                <div class="empty-icon">⚔️</div>
+                <h3>No upcoming matches</h3>
+                <p>Create a pool and fix matches to see them here.</p>
+            </div>
+            
+            <!-- Past Matches -->
+            <div class="section-header past-matches-header">
+                <h2>🏆 Past Matches</h2>
+            </div>
+            <div id="pastMatchList" class="match-list past-match-list"></div>
+            <div id="pastMatchEmptyState" class="empty-state" hidden>
+                <div class="empty-icon">🏆</div>
+                <h3>No completed matches</h3>
+                <p>Completed matches will appear here.</p>
+            </div>
+        </section>
+
+        <!-- Users Tab (Admin Only) -->
+        <section id="usersTab" class="tab-content">
+            <div class="section-header">
+                <h2>👤 User Management</h2>
+                <button id="createUserBtn" class="btn-primary" style="display: none;">+ Add User</button>
+            </div>
+            <div id="userGrid" class="user-grid"></div>
+            <div id="userEmptyState" class="empty-state" hidden>
+                <div class="empty-icon">👤</div>
+                <h3>No users found</h3>
+                <p>Add users to manage the system.</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Edit Team Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2>✏️ Edit Team</h2>
+                <button id="closeModal" class="close-btn">&times;</button>
+            </div>
+            <form id="editForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editSchoolName">School Name</label>
+                        <input type="text" id="editSchoolName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editTeamType">Team Type</label>
+                        <select id="editTeamType" required>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editCoachName">Coach Name</label>
+                        <input type="text" id="editCoachName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editCoachNumber">Coach Phone</label>
+                        <input type="tel" id="editCoachNumber" required>
+                    </div>
+                </div>
+                
+                <!-- Players Section -->
+                <div class="form-group">
+                    <label>👥 Player Details (12 Players)</label>
+                    <div id="editPlayersContainer" class="edit-players-container">
+                        <!-- Players will be generated by JavaScript -->
+                    </div>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" id="cancelEdit" class="btn-secondary">Cancel</button>
+                    <button type="submit" class="btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content modal-small">
+            <div class="modal-header">
+                <h2>🗑️ Delete Team</h2>
+                <button id="closeDeleteModal" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete <strong id="deleteTeamName"></strong>?</p>
+                <p class="text-muted">This action cannot be undone.</p>
+            </div>
+            <div class="modal-actions">
+                <button id="cancelDeleteBtn" class="btn-secondary">Cancel</button>
+                <button id="confirmDeleteBtn" class="btn-danger">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Pool Modal -->
+    <div id="poolModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🏊 Create Pool</h2>
+                <button id="closePoolModal" class="close-btn">&times;</button>
+            </div>
+            <form id="poolForm">
+                <div class="form-group">
+                    <label for="poolName">Pool Name</label>
+                    <input type="text" id="poolName" placeholder="e.g., Pool A" required>
+                </div>
+                <div class="form-group">
+                    <label>Select Teams</label>
+                    <div id="teamCheckboxes" class="checkbox-grid"></div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" id="cancelPool" class="btn-secondary">Cancel</button>
+                    <button type="submit" class="btn-primary">Create Pool</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Pool Modal -->
+    <div id="editPoolModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>✏️ Edit Pool</h2>
+                <button id="closeEditPoolModal" class="close-btn">&times;</button>
+            </div>
+            <form id="editPoolForm">
+                <div class="form-group">
+                    <label for="editPoolName">Pool Name</label>
+                    <input type="text" id="editPoolName" required>
+                </div>
+                <div class="form-group">
+                    <label>Select Teams</label>
+                    <div id="editTeamCheckboxes" class="checkbox-grid"></div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" id="cancelEditPool" class="btn-secondary">Cancel</button>
+                    <button type="submit" class="btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Pool Modal -->
+    <div id="deletePoolModal" class="modal">
+        <div class="modal-content modal-small">
+            <div class="modal-header">
+                <h2>🗑️ Delete Pool</h2>
+                <button id="closeDeletePoolModal" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete <strong id="deletePoolName"></strong>?</p>
+                <p class="text-muted">All matches in this pool will also be deleted.</p>
+            </div>
+            <div class="modal-actions">
+                <button id="cancelDeletePool" class="btn-secondary">Cancel</button>
+                <button id="confirmDeletePool" class="btn-danger">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fix Match Modal -->
+    <div id="fixMatchModal" class="modal">
+        <div class="modal-content modal-small">
+            <div class="modal-header">
+                <h2>⚔️ Create Match</h2>
+                <button id="closeFixMatchModal" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Create a match in <strong id="fixMatchPoolName"></strong></p>
+                <div id="matchTeamSelects">
+                    <!-- Team dropdowns will be inserted here by JS -->
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button id="cancelFixMatch" class="btn-secondary">Cancel</button>
+                <button id="confirmFixMatch" class="btn-primary">Create Match</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Complete Match Modal -->
+    <div id="completeMatchModal" class="modal">
+        <div class="modal-content modal-small">
+            <div class="modal-header">
+                <h2>✅ Complete Match</h2>
+                <button id="closeCompleteMatchModal" class="close-btn">&times;</button>
+            </div>
+            <form id="completeMatchForm">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Winner</label>
+                        <select id="winnerSelect" class="form-control" required>
+                            <option value="">Select Winner</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label id="team1ScoreLabel">Team 1 Score</label>
+                        <input type="number" id="team1ScoreInput" class="form-control" min="0" placeholder="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label id="team2ScoreLabel">Team 2 Score</label>
+                        <input type="number" id="team2ScoreInput" class="form-control" min="0" placeholder="0" required>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" id="cancelCompleteMatch" class="btn-secondary">Cancel</button>
+                    <button type="submit" class="btn-primary">Mark Complete</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Past Match Modal -->
+    <div id="editPastMatchModal" class="modal">
+        <div class="modal-content modal-small">
+            <div class="modal-header">
+                <h2>✏️ Edit Match Result</h2>
+                <button id="closeEditPastMatchModal" class="close-btn">&times;</button>
+            </div>
+            <form id="editPastMatchForm">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Match Number</label>
+                        <input type="number" id="editMatchNumber" class="form-control" min="1" placeholder="Match #" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Winner</label>
+                        <select id="editWinnerSelect" class="form-control" required>
+                            <option value="">Select Winner</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label id="editTeam1ScoreLabel">Team 1 Score</label>
+                        <input type="number" id="editTeam1ScoreInput" class="form-control" min="0" placeholder="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label id="editTeam2ScoreLabel">Team 2 Score</label>
+                        <input type="number" id="editTeam2ScoreInput" class="form-control" min="0" placeholder="0" required>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" id="cancelEditPastMatch" class="btn-secondary">Cancel</button>
+                    <button type="submit" class="btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Create User Modal -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>👤 Add User</h2>
+                <button id="closeUserModal" class="close-btn">&times;</button>
+            </div>
+            <form id="userForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="newUsername">Username</label>
+                        <input type="text" id="newUsername" placeholder="Enter username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="newPassword">Password</label>
+                        <input type="password" id="newPassword" placeholder="Enter password" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="newDisplayName">Display Name</label>
+                        <input type="text" id="newDisplayName" placeholder="e.g., John Doe">
+                    </div>
+                    <div class="form-group">
+                        <label for="newRole">Role</label>
+                        <select id="newRole" required>
+                            <option value="editor">Editor</option>
+                            <option value="viewer">Viewer</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Permissions <span class="text-muted">(Click module header to toggle all)</span></label>
+                    <div id="newPermissionsGrid" class="permissions-table">
+                        <!-- Generated by JS -->
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" id="cancelUser" class="btn-secondary">Cancel</button>
+                    <button type="submit" class="btn-primary">Create User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div id="editUserModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2>✏️ Edit User</h2>
+                <button id="closeEditUserModal" class="close-btn">&times;</button>
+            </div>
+            <form id="editUserForm">
+                <input type="hidden" id="editUserId">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editUsername">Username</label>
+                        <input type="text" id="editUsername" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="editPassword">New Password (leave blank to keep)</label>
+                        <input type="password" id="editPassword" placeholder="••••••••">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editDisplayName">Display Name</label>
+                        <input type="text" id="editDisplayName" placeholder="e.g., John Doe">
+                    </div>
+                    <div class="form-group">
+                        <label for="editRole">Role</label>
+                        <select id="editRole" required>
+                            <option value="editor">Editor</option>
+                            <option value="viewer">Viewer</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Permissions <span class="text-muted">(Click module header to toggle all)</span></label>
+                    <div id="editPermissionsGrid" class="permissions-table">
+                        <!-- Generated by JS -->
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" id="cancelEditUser" class="btn-secondary">Cancel</button>
+                    <button type="submit" class="btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete User Modal -->
+    <div id="deleteUserModal" class="modal">
+        <div class="modal-content modal-small">
+            <div class="modal-header">
+                <h2>🗑️ Delete User</h2>
+                <button id="closeDeleteUserModal" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete <strong id="deleteUserName"></strong>?</p>
+                <p class="text-muted">This action cannot be undone.</p>
+            </div>
+            <div class="modal-actions">
+                <button id="cancelDeleteUser" class="btn-secondary">Cancel</button>
+                <button id="confirmDeleteUser" class="btn-danger">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auth -->
+    <script src="../backend/js/auth.js"></script>
+    <script>
+        // Protect this page
+        if (!isAuthenticated()) {
+            window.location.href = "login.html";
+        }
+        // Show Users tab only for users with users.view permission
+        if (hasPermission('users', 'view')) {
+            document.getElementById("usersTabBtn").style.display = "inline-flex";
+        }
+        // Show Add Team button only for users with teams.add permission
+        if (hasPermission('teams', 'add')) {
+            document.getElementById("addTeamBtn").style.display = "inline-flex";
+        }
+        // Show Create Pool button for users with pools.add permission
+        if (hasPermission('pools', 'add')) {
+            document.getElementById("createPoolBtn").style.display = "inline-flex";
+        }
+        // Show Save Order button for users with matches.reorder permission
+        if (hasPermission('matches', 'reorder')) {
+            document.getElementById("saveMatchOrder").style.display = "inline-flex";
+        }
+        // Show Add User button for users with users.add permission
+        if (hasPermission('users', 'add')) {
+            document.getElementById("createUserBtn").style.display = "inline-flex";
+        }
+        // Logout handler
+        document.getElementById("logoutBtn")?.addEventListener("click", logout);
+        // Show current user name and role
+        const session = getSession();
+        if (session) {
+            const userInfo = document.createElement("span");
+            userInfo.className = "user-info";
+            userInfo.textContent = "👤 " + (session.displayName || session.username) + " (" + session.role + ")";
+            document.querySelector(".header-right")?.prepend(userInfo);
+        }
+    </script>
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Supabase Configuration -->
+    <script src="../backend/js/supabase-config.js"></script>
+    <script src="../backend/js/teams.js"></script>
+    <script src="../backend/js/admin.js"></script>
+</body>
+
+</html>

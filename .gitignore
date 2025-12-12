@@ -1,0 +1,57 @@
+# Dependencies
+node_modules/
+.npm/
+package-lock.json
+
+# Environment variables (IMPORTANT: Never commit sensitive data)
+.env
+.env.local
+.env.*.local
+*.env
+
+# IDE / Editor
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Build output
+dist/
+build/
+out/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Coverage reports
+coverage/
+.nyc_output/
+
+# Sensitive configuration (if you have any)
+# config/secrets.js
+# backend/js/supabase-config.local.js
+
+# Note: supabase-config.js contains your Supabase URL and anon key
+# The anon key is designed to be public, but if you want extra security,
+# you can add it to .gitignore and create a template file instead:
+# backend/js/supabase-config.js

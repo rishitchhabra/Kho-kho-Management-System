@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GIS | Add Team</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/form.css">
+    <style>
+        /* Additional styles for the expanded form */
+        .form-section {
+            background: rgba(0, 0, 0, 0.03);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .form-section h3 {
+            margin: 0 0 16px;
+            font-size: 1.1rem;
+            color: var(--accent, #007610);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+        .player-section {
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            background: #fff;
+        }
+        .player-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        .player-header h4 {
+            margin: 0;
+            font-size: 1rem;
+            color: #333;
+        }
+        .player-number {
+            background: var(--accent, #007610);
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        .player-fields {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+        }
+        .player-fields label {
+            font-size: 0.85rem;
+        }
+        .player-fields input, .player-fields select {
+            padding: 10px 12px;
+            font-size: 0.9rem;
+        }
+        .players-container {
+            max-height: 600px;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+        .players-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        .players-container::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 4px;
+        }
+        .players-container::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+        body.form-page main {
+            max-width: 900px;
+        }
+        .udise-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .udise-status select {
+            flex: 1;
+        }
+        /* Excel Import Styles */
+        .import-section {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+            border: 2px dashed rgba(99, 102, 241, 0.4);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+        .import-section h3 {
+            margin: 0 0 12px;
+            color: #6366f1;
+        }
+        .import-section p {
+            color: #666;
+            margin: 0 0 16px;
+            font-size: 0.9rem;
+        }
+        .import-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .import-btn {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 999px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .import-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.35);
+        }
+        .download-template-btn {
+            background: rgba(0, 0, 0, 0.08);
+            color: #333;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 999px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s;
+        }
+        .download-template-btn:hover {
+            background: rgba(0, 0, 0, 0.12);
+        }
+        #excelFileInput {
+            display: none;
+        }
+        .or-divider {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin: 24px 0;
+            color: #999;
+        }
+        .or-divider::before,
+        .or-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(0, 0, 0, 0.1);
+        }
+        .import-preview {
+            margin-top: 16px;
+            padding: 12px;
+            background: rgba(34, 197, 94, 0.1);
+            border-radius: 8px;
+            color: #16a34a;
+            font-size: 0.9rem;
+            display: none;
+        }
+        .import-preview.show {
+            display: block;
+        }
+        .import-preview.error {
+            background: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
+        }
+    </style>
+    <!-- SheetJS library for Excel parsing -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+</head>
+<body class="form-page">
+    <main>
+        <div class="pill">New Entry</div>
+        <h1>Register a Team</h1>
+        <p class="description">Import from Excel or fill in the details manually to add a new Kho Kho squad.</p>
+
+        <!-- Excel Import Section -->
+        <div class="import-section">
+            <h3>📊 Import from Excel</h3>
+            <p>Upload an Excel file with team and player details. Download the template first to see the required format.</p>
+            <div class="import-actions">
+                <button type="button" class="download-template-btn" onclick="downloadTemplate()">
+                    📥 Download Template
+                </button>
+                <button type="button" class="import-btn" onclick="document.getElementById('excelFileInput').click()">
+                    📤 Upload Excel File
+                </button>
+                <input type="file" id="excelFileInput" accept=".xlsx,.xls" onchange="handleExcelImport(event)">
+            </div>
+            <div id="importPreview" class="import-preview"></div>
+        </div>
+
+        <div class="or-divider">OR ENTER MANUALLY</div>
+
+        <form id="teamForm" novalidate>
+            <!-- School & Coach Information -->
+            <div class="form-section">
+                <h3>🏫 School & Coach Information</h3>
+                <div class="form-row">
+                    <label>
+                        School Name *
+                        <input type="text" name="schoolName" required placeholder="E.g. Gyan International School">
+                    </label>
+                    <label>
+                        Team Type *
+                        <select name="teamType" required>
+                            <option value="" disabled selected>Select team type</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                        </select>
+                    </label>
+                </div>
+                <div class="form-row">
+                    <label>
+                        Coach Name *
+                        <input type="text" name="coachName" required placeholder="E.g. Kavya Sharma">
+                    </label>
+                    <label>
+                        Coach Number *
+                        <input type="tel" name="coachNumber" required placeholder="E.g. 9876543210">
+                    </label>
+                </div>
+            </div>
+
+            <!-- Player Details -->
+            <div class="form-section">
+                <h3>👥 Player Details (12 Players)</h3>
+                <div class="players-container" id="playersContainer">
+                    <!-- Players will be generated by JavaScript -->
+                </div>
+            </div>
+
+            <div id="formStatus" class="status" role="status" aria-live="polite"></div>
+            <div class="actions">
+                <a class="button-link" href="admin.html">Back to Admin</a>
+                <button type="submit">Save Team</button>
+            </div>
+        </form>
+    </main>
+
+    <!-- Auth -->
+    <script src="../backend/js/auth.js"></script>
+    <script>
+        // Protect this page - redirect to login if not authenticated
+        if (!isAuthenticated()) {
+            window.location.href = "login.html";
+        }
+    </script>
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Supabase Configuration -->
+    <script src="../backend/js/supabase-config.js"></script>
+    <script src="../backend/js/teams.js"></script>
+    <script src="../backend/js/add-team.js"></script>
+    <script>
+        // Generate player input fields
+        function generatePlayerFields() {
+            const container = document.getElementById('playersContainer');
+            let html = '';
+            
+            for (let i = 1; i <= 12; i++) {
+                html += `
+                    <div class="player-section" data-player="${i}">
+                        <div class="player-header">
+                            <h4>Player ${i}</h4>
+                            <div class="player-number">${i}</div>
+                        </div>
+                        <div class="player-fields">
+                            <label>
+                                Player Name *
+                                <input type="text" name="player${i}_name" required placeholder="Full name">
+                            </label>
+                            <label>
+                                Father's Name *
+                                <input type="text" name="player${i}_father" required placeholder="Father's name">
+                            </label>
+                            <label>
+                                Aadhaar No. *
+                                <input type="text" name="player${i}_aadhaar" required placeholder="12-digit Aadhaar" 
+                                       pattern="[0-9]{12}" maxlength="12">
+                            </label>
+                            <label>
+                                Class *
+                                <select name="player${i}_class" required>
+                                    <option value="">Select</option>
+                                    <option value="4">Class 4</option>
+                                    <option value="5">Class 5</option>
+                                    <option value="6">Class 6</option>
+                                    <option value="7">Class 7</option>
+                                    <option value="8">Class 8</option>
+                                    <option value="9">Class 9</option>
+                                    <option value="10">Class 10</option>
+                                    <option value="11">Class 11</option>
+                                    <option value="12">Class 12</option>
+                                </select>
+                            </label>
+                            <label>
+                                Date of Birth *
+                                <input type="date" name="player${i}_dob" required>
+                            </label>
+                            <label>
+                                PEN No.
+                                <input type="text" name="player${i}_pen" placeholder="PEN Number">
+                            </label>
+                            <label class="udise-status">
+                                UDISE Status
+                                <select name="player${i}_udise">
+                                    <option value="">Select</option>
+                                    <option value="verified">Verified</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="not_applicable">N/A</option>
+                                </select>
+                            </label>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            container.innerHTML = html;
+        }
+        
+        // Generate fields on page load
+        generatePlayerFields();
+
+        // ==================== EXCEL IMPORT FUNCTIONS ====================
+        
+        /**
+         * Download Excel template
+         */
+        function downloadTemplate() {
+            // Create workbook and worksheet
+            const wb = XLSX.utils.book_new();
+            
+            // Single sheet with all data - matching the user's exact format
+            const headers = [
+                'S.No', 'School Name', 'Team Type', 'Coach Name', 'Coach Phone', 
+                'Registration Date', 'Player No', 'Player Name', 'Father Name', 
+                'Class', 'Date of Birth', 'Aadhaar Number'
+            ];
+            
+            const data = [headers];
+            
+            // Add 12 player rows
+            for (let i = 1; i <= 12; i++) {
+                data.push([
+                    i === 1 ? 1 : '',  // S.No only in first row
+                    i === 1 ? 'School Name Here' : '',  // School only in first row
+                    i === 1 ? 'Male Team' : '',  // Team Type only in first row (Male Team/Female Team)
+                    i === 1 ? 'Coach Name' : '',  // Coach only in first row
+                    i === 1 ? '9876543210' : '',  // Phone only in first row
+                    i === 1 ? '11/12/2025' : '',  // Registration Date only in first row
+                    i,  // Player No
+                    `Player ${i} Name`,
+                    `Father ${i} Name`,
+                    8,  // Class
+                    '01/01/2012',  // DOB in DD/MM/YYYY format
+                    '123456789012'  // Aadhaar
+                ]);
+            }
+            
+            const sheet = XLSX.utils.aoa_to_sheet(data);
+            sheet['!cols'] = [
+                { wch: 5 },   // S.No
+                { wch: 25 },  // School Name
+                { wch: 12 },  // Team Type
+                { wch: 20 },  // Coach Name
+                { wch: 12 },  // Coach Phone
+                { wch: 15 },  // Registration Date
+                { wch: 10 },  // Player No
+                { wch: 20 },  // Player Name
+                { wch: 20 },  // Father Name
+                { wch: 8 },   // Class
+                { wch: 12 },  // Date of Birth
+                { wch: 15 }   // Aadhaar Number
+            ];
+            XLSX.utils.book_append_sheet(wb, sheet, 'Team Data');
+            
+            // Download file
+            XLSX.writeFile(wb, 'team_registration_template.xlsx');
+        }
+
+        /**
+         * Handle Excel file import
+         */
+        function handleExcelImport(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const preview = document.getElementById('importPreview');
+            preview.className = 'import-preview show';
+            preview.textContent = 'Reading file...';
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array', cellDates: true });
+                    
+                    // Read first sheet
+                    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+                    
+                    if (rows.length < 2) {
+                        throw new Error('Excel must have at least 2 rows (header + data)');
+                    }
+
+                    // Find header row (first row)
+                    const headers = rows[0].map(h => String(h || '').toLowerCase().trim());
+                    
+                    // Find column indices
+                    const colIndex = {
+                        schoolName: headers.findIndex(h => h.includes('school')),
+                        teamType: headers.findIndex(h => h.includes('team type') || h.includes('team')),
+                        coachName: headers.findIndex(h => h.includes('coach') && h.includes('name')),
+                        coachPhone: headers.findIndex(h => h.includes('coach') && h.includes('phone') || h.includes('phone')),
+                        playerNo: headers.findIndex(h => h.includes('player') && h.includes('no')),
+                        playerName: headers.findIndex(h => h.includes('player') && h.includes('name')),
+                        fatherName: headers.findIndex(h => h.includes('father')),
+                        class: headers.findIndex(h => h === 'class'),
+                        dob: headers.findIndex(h => h.includes('birth') || h.includes('dob')),
+                        aadhaar: headers.findIndex(h => h.includes('aadhaar') || h.includes('aadhar'))
+                    };
+
+                    // Get team info from first data row
+                    const firstDataRow = rows[1];
+                    
+                    const schoolName = firstDataRow[colIndex.schoolName] || '';
+                    let teamType = String(firstDataRow[colIndex.teamType] || '').toLowerCase();
+                    // Handle "Male Team" / "Female Team" format
+                    if (teamType.includes('male') && !teamType.includes('female')) {
+                        teamType = 'male';
+                    } else if (teamType.includes('female')) {
+                        teamType = 'female';
+                    }
+                    const coachName = firstDataRow[colIndex.coachName] || '';
+                    const coachPhone = String(firstDataRow[colIndex.coachPhone] || '').replace(/\D/g, '');
+
+                    if (!schoolName) {
+                        throw new Error('School Name is required in the first data row');
+                    }
+                    if (!teamType || (teamType !== 'male' && teamType !== 'female')) {
+                        throw new Error('Team Type must contain "Male" or "Female"');
+                    }
+
+                    // Fill team info
+                    document.querySelector('input[name="schoolName"]').value = schoolName;
+                    document.querySelector('select[name="teamType"]').value = teamType;
+                    document.querySelector('input[name="coachName"]').value = coachName;
+                    document.querySelector('input[name="coachNumber"]').value = coachPhone;
+
+                    // Fill player data (rows 1-12 after header)
+                    let filledCount = 0;
+                    for (let i = 1; i <= 12 && i < rows.length; i++) {
+                        const row = rows[i];
+                        if (!row) continue;
+
+                        const playerNum = i;
+                        
+                        // Player Name
+                        const nameInput = document.querySelector(`input[name="player${playerNum}_name"]`);
+                        if (nameInput && row[colIndex.playerName]) {
+                            nameInput.value = row[colIndex.playerName] || '';
+                        }
+                        
+                        // Father's Name
+                        const fatherInput = document.querySelector(`input[name="player${playerNum}_father"]`);
+                        if (fatherInput && row[colIndex.fatherName]) {
+                            fatherInput.value = row[colIndex.fatherName] || '';
+                        }
+                        
+                        // Aadhaar
+                        const aadhaarInput = document.querySelector(`input[name="player${playerNum}_aadhaar"]`);
+                        if (aadhaarInput && row[colIndex.aadhaar]) {
+                            aadhaarInput.value = String(row[colIndex.aadhaar] || '').replace(/\D/g, '');
+                        }
+                        
+                        // Class
+                        const classSelect = document.querySelector(`select[name="player${playerNum}_class"]`);
+                        if (classSelect && row[colIndex.class]) {
+                            const classVal = String(row[colIndex.class] || '').replace(/\D/g, '');
+                            if (classVal >= 4 && classVal <= 12) {
+                                classSelect.value = classVal;
+                            }
+                        }
+                        
+                        // Date of Birth
+                        const dobInput = document.querySelector(`input[name="player${playerNum}_dob"]`);
+                        if (dobInput && row[colIndex.dob]) {
+                            let dobValue = row[colIndex.dob];
+                            if (dobValue instanceof Date) {
+                                dobValue = dobValue.toISOString().split('T')[0];
+                            } else if (typeof dobValue === 'string') {
+                                // Handle DD/MM/YYYY format
+                                const ddmmyyyy = dobValue.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+                                if (ddmmyyyy) {
+                                    const day = ddmmyyyy[1].padStart(2, '0');
+                                    const month = ddmmyyyy[2].padStart(2, '0');
+                                    const year = ddmmyyyy[3];
+                                    dobValue = `${year}-${month}-${day}`;
+                                } else {
+                                    // Try standard date parsing
+                                    const parsed = new Date(dobValue);
+                                    if (!isNaN(parsed)) {
+                                        dobValue = parsed.toISOString().split('T')[0];
+                                    }
+                                }
+                            } else if (typeof dobValue === 'number') {
+                                // Excel serial date
+                                const date = new Date((dobValue - 25569) * 86400 * 1000);
+                                dobValue = date.toISOString().split('T')[0];
+                            }
+                            dobInput.value = dobValue;
+                        }
+                        
+                        if (row[colIndex.playerName]) filledCount++;
+                    }
+
+                    preview.className = 'import-preview show';
+                    preview.textContent = `✅ Successfully imported: ${schoolName} (${teamType}) with ${filledCount} players. PEN No. and UDISE Status can be set later.`;
+                    
+                    // Scroll to form
+                    document.getElementById('teamForm').scrollIntoView({ behavior: 'smooth' });
+
+                } catch (error) {
+                    preview.className = 'import-preview show error';
+                    preview.textContent = `❌ Error: ${error.message}`;
+                    console.error('Excel import error:', error);
+                }
+            };
+            
+            reader.onerror = function() {
+                preview.className = 'import-preview show error';
+                preview.textContent = '❌ Error reading file';
+            };
+            
+            reader.readAsArrayBuffer(file);
+            
+            // Reset file input so same file can be selected again
+            event.target.value = '';
+        }
+    </script>
+</body>
+</html>

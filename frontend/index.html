@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kho Kho Premier League</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+    <header>
+        <div class="header-left">
+            <h1>🏃 Kho Kho Premier League</h1>
+            <p class="subtitle">Gyan International School</p>
+        </div>
+        <div class="header-right">
+            <select id="genderFilter">
+                <option value="male">👨 Male</option>
+                <option value="female">👩 Female</option>
+            </select>
+            <a href="admin.html" class="admin-btn">⚙️ Admin</a>
+        </div>
+    </header>
+    
+    <main>
+        <!-- Upcoming Matches Section -->
+        <section class="matches-section">
+            <div class="section-title">
+                <h2>⚔️ Upcoming Matches</h2>
+            </div>
+            <div id="upcomingMatches" class="matches-carousel">
+                <div class="loading-state">
+                    <div class="spinner"></div>
+                    <p>Loading matches...</p>
+                </div>
+            </div>
+            <div id="noMatches" class="no-matches" hidden>
+                <p>No upcoming matches scheduled</p>
+            </div>
+        </section>
+
+        <!-- Past Matches Section -->
+        <section class="matches-section past-matches-section">
+            <div class="section-title">
+                <h2>🏆 Past Matches</h2>
+            </div>
+            <div id="pastMatches" class="past-matches-grid">
+                <div class="loading-state">
+                    <div class="spinner"></div>
+                    <p>Loading past matches...</p>
+                </div>
+            </div>
+            <div id="noPastMatches" class="no-matches" hidden>
+                <p>No completed matches yet</p>
+            </div>
+        </section>
+
+        <!-- Teams Section -->
+        <section class="teams-section">
+            <div class="section-title">
+                <h2>🏫 Participating Teams</h2>
+            </div>
+            <div id="teamGrid" aria-live="polite">
+                <div class="loading-state">
+                    <div class="spinner"></div>
+                    <p>Loading teams...</p>
+                </div>
+            </div>
+            
+            <div id="emptyState" class="empty-state" hidden>
+                <div class="empty-icon">🏆</div>
+                <h3>No teams found</h3>
+                <p>Try a different filter or add a new team to the league.</p>
+                <a href="add-team.html" class="btn-primary">+ Add Team</a>
+            </div>
+        </section>
+    </main>
+    
+    <footer>
+        <div class="footer-content">
+            <span>🏃 Crafted for Kho Kho enthusiasts</span>
+            <span>•</span>
+            <span>⚡ Powered by Supabase</span>
+            <span>•</span>
+            <span><strong id="teamCount">0</strong> active teams</span>
+        </div>
+    </footer>
+
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Supabase Configuration -->
+    <script src="../backend/js/supabase-config.js"></script>
+    <script src="../backend/js/teams.js"></script>
+    <script src="../backend/js/home.js"></script>
+</body>
+
+</html>
