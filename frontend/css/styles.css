@@ -48,8 +48,8 @@ header {
 }
 
 .header-logo {
-    width: 55px;
-    height: 55px;
+    width: 65px;
+    height: 65px;
     border-radius: 10px;
     object-fit: contain;
     transition: transform 0.2s ease;
@@ -164,19 +164,12 @@ main {
     width: 100%;
 }
 
-/* TEAM GRID */
-#teamGrid {
-    display: grid;
-    gap: 24px;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-}
-
 /* Loading State */
 .loading-state {
-    grid-column: 1 / -1;
     text-align: center;
     padding: 60px 20px;
     color: var(--text-muted);
+    width: 100%;
 }
 
 .spinner {
@@ -625,26 +618,29 @@ footer {
     display: flex;
     gap: 20px;
     overflow-x: auto;
-    padding-bottom: 12px;
+    overflow-y: hidden;
+    padding-bottom: 16px;
     scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
 }
 
 .teams-carousel::-webkit-scrollbar {
-    height: 6px;
+    height: 8px;
 }
 
 .teams-carousel::-webkit-scrollbar-track {
     background: rgba(0, 0, 0, 0.1);
-    border-radius: 3px;
+    border-radius: 4px;
 }
 
 .teams-carousel::-webkit-scrollbar-thumb {
     background: var(--accent);
-    border-radius: 3px;
+    border-radius: 4px;
 }
 
 .teams-carousel .team-card {
     flex: 0 0 300px;
+    min-width: 300px;
     scroll-snap-align: start;
 }
 

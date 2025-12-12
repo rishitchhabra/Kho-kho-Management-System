@@ -17,7 +17,11 @@
 
     // Get team's pool name
     function getTeamPool(teamId) {
-        const pool = pools.find(p => p.team_ids && p.team_ids.includes(teamId));
+        const pool = pools.find(p => {
+            if (!p.team_ids || !Array.isArray(p.team_ids)) return false;
+            // Check both string and number comparison
+            return p.team_ids.some(id => String(id) === String(teamId));
+        });
         return pool ? pool.name : null;
     }
 
@@ -288,7 +292,8 @@
         if (poolFilterValue && poolFilterValue !== 'all') {
             filteredCollection = collection.filter(team => {
                 const teamPool = getTeamPool(team.id);
-                return teamPool === poolFilterValue;
+                // Case-insensitive comparison
+                return teamPool && teamPool.toLowerCase() === poolFilterValue.toLowerCase();
             });
         }
 
