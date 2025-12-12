@@ -12,15 +12,18 @@
 <body>
     <header>
         <div class="header-left">
-            <h1>🏃 Kho Kho Premier League</h1>
-            <p class="subtitle">Gyan International School</p>
+            <img src="src/gis-logo.png" alt="GIS Logo" class="header-logo">
+            <div class="header-text">
+                <h1>Kho Kho Premier League</h1>
+                <p class="subtitle">Gyan International School</p>
+            </div>
         </div>
         <div class="header-right">
             <select id="genderFilter">
                 <option value="male">👨 Male</option>
                 <option value="female">👩 Female</option>
             </select>
-            <a href="admin.html" class="admin-btn">⚙️ Admin</a>
+            <a href="admin.html" class="admin-btn">⚙️ Login</a>
         </div>
     </header>
     
@@ -46,7 +49,7 @@
             <div class="section-title">
                 <h2>🏆 Past Matches</h2>
             </div>
-            <div id="pastMatches" class="past-matches-grid">
+            <div id="pastMatches" class="matches-carousel past-matches-carousel">
                 <div class="loading-state">
                     <div class="spinner"></div>
                     <p>Loading past matches...</p>
@@ -59,10 +62,15 @@
 
         <!-- Teams Section -->
         <section class="teams-section">
-            <div class="section-title">
+            <div class="section-title-row">
                 <h2>🏫 Participating Teams</h2>
+                <select id="poolFilter" class="pool-filter">
+                    <option value="all">All Pools</option>
+                    <option value="Pool A">Pool A</option>
+                    <option value="Pool B">Pool B</option>
+                </select>
             </div>
-            <div id="teamGrid" aria-live="polite">
+            <div id="teamGrid" class="teams-carousel" aria-live="polite">
                 <div class="loading-state">
                     <div class="spinner"></div>
                     <p>Loading teams...</p>
@@ -87,6 +95,16 @@
             <span><strong id="teamCount">0</strong> active teams</span>
         </div>
     </footer>
+
+    <!-- Team View Modal -->
+    <div id="teamViewModal" class="modal-overlay">
+        <div class="team-view-modal">
+            <button class="modal-close-btn" id="closeTeamView">✕</button>
+            <div id="teamViewContent" class="team-view-content">
+                <!-- Content will be dynamically inserted -->
+            </div>
+        </div>
+    </div>
 
     <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

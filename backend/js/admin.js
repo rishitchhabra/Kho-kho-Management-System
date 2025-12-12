@@ -44,6 +44,19 @@
     let currentDeleteUserId = null;
     let draggedMatch = null;
 
+    // DOM Elements - Search
+    const searchInput = document.getElementById("teamSearchInput");
+    const clearSearchBtn = document.getElementById("clearSearchBtn");
+    const searchResults = document.getElementById("searchResults");
+    const searchResultsContent = document.getElementById("searchResultsContent");
+    const closeSearchResults = document.getElementById("closeSearchResults");
+
+    // ==================== HELPER FUNCTIONS ====================
+    function getTeamPool(teamId) {
+        const pool = pools.find(p => p.team_ids && p.team_ids.includes(teamId));
+        return pool ? pool.name : null;
+    }
+
     // ==================== PERSISTENCE HELPERS ====================
     function saveToStorage(key, value) {
         localStorage.setItem(`khoKhoAdmin_${key}`, value);
@@ -164,11 +177,16 @@
             card.className = "team-card";
             const pillClass = team.team_type === 'male' ? 'male' : 'female';
             const pillText = team.team_type === 'male' ? '👨 Male' : '👩 Female';
+            const teamPool = getTeamPool(team.id);
             
             card.innerHTML = `
                 <div class="card-header">
-                    <span class="pill ${pillClass}">${pillText}</span>
+                    <div class="card-badges">
+                        <span class="pill ${pillClass}">${pillText}</span>
+                        ${teamPool ? `<span class="pool-badge">${teamPool}</span>` : ''}
+                    </div>
                     <div class="card-actions">
+                        <button class="btn-icon view-btn" data-id="${team.id}" title="View Team">👁</button>
                         ${canEdit ? `<button class="btn-icon edit-btn" data-id="${team.id}" title="Edit">✏️</button>` : ''}
                         ${canDelete ? `<button class="btn-icon delete-btn" data-id="${team.id}" title="Delete">🗑️</button>` : ''}
                     </div>
@@ -181,6 +199,15 @@
                 </div>
             `;
             gridEl.appendChild(card);
+        });
+
+        // View team button handler
+        gridEl.querySelectorAll(".view-btn").forEach(btn => {
+            btn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                const id = e.currentTarget.dataset.id;
+                openViewTeamModal(id);
+            });
         });
 
         // Use specific selectors within teamGrid for team buttons
@@ -206,6 +233,155 @@
                 const id = e.currentTarget.dataset.id;
                 openDeleteModal(id);
             });
+        });
+    }
+
+    // ==================== VIEW TEAM MODAL ====================
+    const viewTeamModal = document.getElementById("viewTeamModal");
+    const viewTeamContent = document.getElementById("viewTeamContent");
+    const closeViewTeamModalBtn = document.getElementById("closeViewTeamModal");
+
+    function openViewTeamModal(teamId) {
+        const team = teams.find(t => String(t.id) === String(teamId));
+        if (!team) return;
+
+        const teamPool = getTeamPool(team.id);
+        const pillClass = team.team_type === 'male' ? 'male' : 'female';
+        const pillText = team.team_type === 'male' ? '👨 Male Team' : '👩 Female Team';
+
+        // Get team's matches
+        const teamMatches = matches.filter(m => 
+            String(m.team1_id) === String(teamId) || String(m.team2_id) === String(teamId)
+        );
+        const upcomingMatches = teamMatches.filter(m => m.status === 'upcoming');
+        const pastMatches = teamMatches.filter(m => m.status === 'completed');
+
+        // Parse players
+        let players = [];
+        try {
+            players = typeof team.players === 'string' ? JSON.parse(team.players) : (team.players || []);
+        } catch (e) {
+            players = [];
+        }
+
+        // Calculate stats
+        const totalMatches = pastMatches.length;
+        const wins = pastMatches.filter(m => String(m.winner_id) === String(teamId)).length;
+        const losses = totalMatches - wins;
+
+        viewTeamContent.innerHTML = `
+            <div class="view-team-header">
+                <h1>🏫 ${team.school_name}</h1>
+                <div class="view-team-badges">
+                    <span class="pill ${pillClass}">${pillText}</span>
+                    ${teamPool ? `<span class="pool-badge">${teamPool}</span>` : '<span class="pool-badge-empty">No Pool</span>'}
+                </div>
+            </div>
+
+            <div class="view-team-stats">
+                <div class="stat-box">
+                    <span class="stat-number">${totalMatches}</span>
+                    <span class="stat-text">Matches</span>
+                </div>
+                <div class="stat-box wins">
+                    <span class="stat-number">${wins}</span>
+                    <span class="stat-text">Wins</span>
+                </div>
+                <div class="stat-box losses">
+                    <span class="stat-number">${losses}</span>
+                    <span class="stat-text">Losses</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-number">${totalMatches > 0 ? Math.round((wins/totalMatches)*100) : 0}%</span>
+                    <span class="stat-text">Win Rate</span>
+                </div>
+            </div>
+
+            <div class="view-team-section">
+                <h3>🎯 Coach Details</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label>Name</label>
+                        <span>${team.coach_name}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Phone</label>
+                        <span>${team.coach_number}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="view-team-section">
+                <h3>👥 Players (${players.length})</h3>
+                <div class="players-grid">
+                    ${players.length > 0 ? players.map((player, index) => `
+                        <div class="player-card">
+                            <span class="player-num">${index + 1}</span>
+                            <span class="player-name">${player.name || player}</span>
+                            ${player.class ? `<span class="player-class">Class ${player.class}</span>` : ''}
+                        </div>
+                    `).join('') : '<p class="no-data">No players registered</p>'}
+                </div>
+            </div>
+
+            <div class="view-team-section">
+                <h3>📅 Upcoming Matches (${upcomingMatches.length})</h3>
+                <div class="matches-list">
+                    ${upcomingMatches.length > 0 ? upcomingMatches.map(match => {
+                        const opponent = teams.find(t => 
+                            String(t.id) === (String(match.team1_id) === String(teamId) ? String(match.team2_id) : String(match.team1_id))
+                        );
+                        const pool = pools.find(p => p.id === match.pool_id);
+                        return `
+                            <div class="match-item upcoming">
+                                <span class="match-num">Match ${match.match_number || '-'}</span>
+                                <span class="match-vs">vs ${opponent ? opponent.school_name : 'TBD'}</span>
+                                ${pool ? `<span class="match-pool">${pool.name}</span>` : ''}
+                            </div>
+                        `;
+                    }).join('') : '<p class="no-data">No upcoming matches scheduled</p>'}
+                </div>
+            </div>
+
+            <div class="view-team-section">
+                <h3>🏆 Past Matches (${pastMatches.length})</h3>
+                <div class="matches-list">
+                    ${pastMatches.length > 0 ? pastMatches.map(match => {
+                        const opponent = teams.find(t => 
+                            String(t.id) === (String(match.team1_id) === String(teamId) ? String(match.team2_id) : String(match.team1_id))
+                        );
+                        const won = String(match.winner_id) === String(teamId);
+                        return `
+                            <div class="match-item ${won ? 'won' : 'lost'}">
+                                <span class="match-num">Match ${match.match_number || '-'}</span>
+                                <span class="match-vs">vs ${opponent ? opponent.school_name : 'Unknown'}</span>
+                                <span class="match-score">${match.score || '0 - 0'}</span>
+                                <span class="match-result">${won ? '🏆 WON' : '❌ LOST'}</span>
+                            </div>
+                        `;
+                    }).join('') : '<p class="no-data">No past matches</p>'}
+                </div>
+            </div>
+        `;
+
+        viewTeamModal.classList.add("show");
+        document.body.style.overflow = "hidden";
+    }
+
+    function closeViewTeamModal() {
+        viewTeamModal.classList.remove("show");
+        document.body.style.overflow = "";
+    }
+
+    // Close view team modal events
+    if (closeViewTeamModalBtn) {
+        closeViewTeamModalBtn.addEventListener("click", closeViewTeamModal);
+    }
+    if (viewTeamModal) {
+        viewTeamModal.addEventListener("click", (e) => {
+            if (e.target === viewTeamModal) {
+                closeViewTeamModal();
+            }
         });
     }
 
@@ -1507,8 +1683,207 @@
             if (userModal?.classList.contains("show")) closeUserModal();
             if (editUserModal?.classList.contains("show")) closeEditUserModal();
             if (deleteUserModal?.classList.contains("show")) closeDeleteUserModal();
+            if (searchResults && !searchResults.hidden) closeSearchResults();
         }
     });
+
+    // ==================== SEARCH FUNCTIONALITY ====================
+    function performSearch(query) {
+        if (!query || query.length < 2) {
+            searchResults.hidden = true;
+            clearSearchBtn.hidden = true;
+            return;
+        }
+
+        clearSearchBtn.hidden = false;
+        const lowerQuery = query.toLowerCase();
+        let matchedTeams = teams.filter(team => 
+            team.school_name.toLowerCase().includes(lowerQuery) ||
+            team.coach_name.toLowerCase().includes(lowerQuery)
+        );
+
+        // Sort by gender priority - teams matching selected filter come first
+        const selectedGender = filterEl.value;
+        matchedTeams.sort((a, b) => {
+            const aMatch = a.team_type === selectedGender ? 0 : 1;
+            const bMatch = b.team_type === selectedGender ? 0 : 1;
+            return aMatch - bMatch;
+        });
+
+        if (matchedTeams.length === 0) {
+            searchResultsContent.innerHTML = `
+                <div class="no-results">
+                    <p>No teams found matching "<strong>${query}</strong>"</p>
+                </div>
+            `;
+            searchResults.hidden = false;
+            return;
+        }
+
+        // Get all matches for context
+        const allMatches = matches;
+
+        searchResultsContent.innerHTML = matchedTeams.map(team => {
+            const teamPool = getTeamPool(team.id);
+            const pillClass = team.team_type === 'male' ? 'male' : 'female';
+            const pillText = team.team_type === 'male' ? '👨 Male' : '👩 Female';
+
+            // Find team's matches
+            const teamMatches = allMatches.filter(m => 
+                String(m.team1_id) === String(team.id) || 
+                String(m.team2_id) === String(team.id)
+            );
+
+            const upcomingMatches = teamMatches.filter(m => m.status === 'upcoming');
+            const pastMatches = teamMatches.filter(m => m.status === 'completed');
+
+            // Render past matches
+            const pastMatchesHtml = pastMatches.map(match => {
+                const opponent = teams.find(t => 
+                    String(t.id) === (String(match.team1_id) === String(team.id) ? String(match.team2_id) : String(match.team1_id))
+                );
+                const isWinner = String(match.winner_id) === String(team.id);
+                const resultClass = isWinner ? 'won' : 'lost';
+                const resultText = isWinner ? 'WON' : 'LOST';
+                
+                return `
+                    <div class="match-mini ${resultClass}">
+                        <div class="match-mini-teams">
+                            Match ${match.match_number || '-'}: vs ${opponent ? opponent.school_name : 'Unknown'}
+                        </div>
+                        <span class="match-mini-result">${resultText} (${match.score || '0-0'})</span>
+                    </div>
+                `;
+            }).join('');
+
+            // Render upcoming matches
+            const upcomingMatchesHtml = upcomingMatches.map(match => {
+                const opponent = teams.find(t => 
+                    String(t.id) === (String(match.team1_id) === String(team.id) ? String(match.team2_id) : String(match.team1_id))
+                );
+                
+                return `
+                    <div class="match-mini upcoming">
+                        <div class="match-mini-teams">
+                            Match ${match.match_number || '-'}: vs ${opponent ? opponent.school_name : 'TBD'}
+                        </div>
+                        <span class="match-mini-result">UPCOMING</span>
+                    </div>
+                `;
+            }).join('');
+
+            return `
+                <div class="search-result-card" data-team-id="${team.id}">
+                    <div class="search-result-header">
+                        <div>
+                            <h4>${team.school_name}</h4>
+                            <div class="search-result-badges">
+                                <span class="pill ${pillClass}">${pillText}</span>
+                                ${teamPool ? `<span class="pool-badge">${teamPool}</span>` : '<span class="pool-badge-empty">No Pool</span>'}
+                            </div>
+                        </div>
+                        <button class="view-profile-btn" data-team-id="${team.id}">👁 View Profile</button>
+                    </div>
+                    <div class="search-result-info">
+                        <div class="info-item">
+                            <label>Coach</label>
+                            <span>🎯 ${team.coach_name}</span>
+                        </div>
+                        <div class="info-item">
+                            <label>Contact</label>
+                            <span>📞 ${team.coach_number}</span>
+                        </div>
+                        <div class="info-item">
+                            <label>Players</label>
+                            <span>👥 ${team.player_count} Players</span>
+                        </div>
+                        <div class="info-item">
+                            <label>Record</label>
+                            <span>🏆 ${pastMatches.filter(m => String(m.winner_id) === String(team.id)).length}W - ${pastMatches.filter(m => String(m.winner_id) !== String(team.id)).length}L</span>
+                        </div>
+                    </div>
+                    ${pastMatches.length > 0 ? `
+                        <div class="search-result-matches">
+                            <h5>🏆 Past Matches (${pastMatches.length})</h5>
+                            <div class="match-list-mini">${pastMatchesHtml}</div>
+                        </div>
+                    ` : ''}
+                    ${upcomingMatches.length > 0 ? `
+                        <div class="search-result-matches">
+                            <h5>⚔️ Upcoming Matches (${upcomingMatches.length})</h5>
+                            <div class="match-list-mini">${upcomingMatchesHtml}</div>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }).join('');
+
+        // Add click handlers for view profile buttons
+        searchResultsContent.querySelectorAll('.view-profile-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const teamId = e.currentTarget.dataset.teamId;
+                closeSearchPanel();
+                openViewTeamModal(teamId);
+            });
+        });
+
+        searchResults.hidden = false;
+    }
+
+    function closeSearchPanel() {
+        searchResults.hidden = true;
+        searchInput.value = '';
+        clearSearchBtn.hidden = true;
+    }
+
+    // Search event listeners
+    if (searchInput) {
+        let searchTimeout;
+        searchInput.addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                performSearch(e.target.value.trim());
+            }, 300);
+        });
+    }
+
+    if (clearSearchBtn) {
+        clearSearchBtn.addEventListener('click', closeSearchPanel);
+    }
+
+    if (closeSearchResults) {
+        closeSearchResults.addEventListener('click', closeSearchPanel);
+    }
+
+    // ==================== THEME TOGGLE ====================
+    const themeToggle = document.getElementById('themeToggle');
+    
+    function setTheme(theme) {
+        document.body.setAttribute('data-theme', theme);
+        saveToStorage('theme', theme);
+        
+        // Update toggle button icon
+        if (themeToggle) {
+            themeToggle.innerHTML = theme === 'light' ? '🌙' : '☀️';
+            themeToggle.title = theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode';
+        }
+    }
+
+    function toggleTheme() {
+        const currentTheme = document.body.getAttribute('data-theme') || 'dark';
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        setTheme(newTheme);
+    }
+
+    // Initialize theme from storage
+    const savedTheme = getFromStorage('theme', 'dark');
+    setTheme(savedTheme);
+
+    // Theme toggle event listener
+    if (themeToggle) {
+        themeToggle.addEventListener('click', toggleTheme);
+    }
 
     // ==================== INITIAL LOAD ====================
     // Restore saved filter from localStorage

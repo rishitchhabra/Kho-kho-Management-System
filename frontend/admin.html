@@ -4,17 +4,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="src/gis-logo.png" />
     <title>Admin | GIS</title>
     <link rel="stylesheet" href="css/admin.css">
 </head>
 
-<body>
+<body class="light-theme">
     <header>
         <div class="header-left">
-            <h1>⚙️ Admin Panel</h1>
-            <p class="subtitle">Manage Teams, Pools & Matches</p>
+            <img src="src/gis-logo.png" alt="GIS Logo" class="header-logo">
+            <div class="header-text">
+                <h1>Admin Panel</h1>
+                <p class="subtitle">Manage Teams, Pools & Matches</p>
+            </div>
         </div>
         <div class="header-right">
+            <button id="themeToggle" class="theme-toggle" title="Toggle Theme">🌙</button>
             <select id="filter">
                 <option value="male">👨 Male</option>
                 <option value="female">👩 Female</option>
@@ -34,6 +39,24 @@
     </nav>
 
     <main>
+        <!-- Search Bar -->
+        <div class="search-container">
+            <div class="search-wrapper">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="teamSearchInput" placeholder="Search teams by name..." autocomplete="off">
+                <button id="clearSearchBtn" class="clear-search-btn" hidden>✕</button>
+            </div>
+        </div>
+
+        <!-- Search Results -->
+        <div id="searchResults" class="search-results" hidden>
+            <div class="search-results-header">
+                <h3>🔍 Search Results</h3>
+                <button id="closeSearchResults" class="close-search-btn">✕ Close</button>
+            </div>
+            <div id="searchResultsContent"></div>
+        </div>
+
         <!-- Teams Tab -->
         <section id="teamsTab" class="tab-content active">
             <div class="section-header">
@@ -433,6 +456,19 @@
             <div class="modal-actions">
                 <button id="cancelDeleteUser" class="btn-secondary">Cancel</button>
                 <button id="confirmDeleteUser" class="btn-danger">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Team Modal -->
+    <div id="viewTeamModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2>👁 Team Profile</h2>
+                <button id="closeViewTeamModal" class="close-btn">&times;</button>
+            </div>
+            <div id="viewTeamContent" class="modal-body view-team-body">
+                <!-- Content dynamically inserted -->
             </div>
         </div>
     </div>

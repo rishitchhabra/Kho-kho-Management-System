@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GIS | Add Team</title>
+    <title>Add Team | GIS</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/form.css">
     <style>
@@ -263,7 +263,7 @@
     </main>
 
     <!-- Auth -->
-    <script src="js/auth.js"></script>
+    <script src="../backend/js/auth.js"></script>
     <script>
         // Protect this page - redirect to login if not authenticated
         if (!isAuthenticated()) {
@@ -273,9 +273,9 @@
     <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Supabase Configuration -->
-    <script src="js/supabase-config.js"></script>
-    <script src="js/teams.js"></script>
-    <script src="js/add-team.js"></script>
+    <script src="../backend/js/supabase-config.js"></script>
+    <script src="../backend/js/teams.js"></script>
+    <script src="../backend/js/add-team.js"></script>
     <script>
         // Generate player input fields
         function generatePlayerFields() {
