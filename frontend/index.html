@@ -10,6 +10,8 @@
 </head>
 
 <body>
+    <audio id="bgMusic" src="./src/title-song.mp3" loop></audio>
+    <button id="musicToggle" class="music-toggle" title="Toggle Music">🔇</button>
     <header>
         <div class="header-left">
             <img src="src/gis-logo.png" alt="GIS Logo" class="header-logo">
@@ -112,6 +114,49 @@
     <script src="js/supabase-config.js"></script>
     <script src="js/teams.js"></script>
     <script src="js/home.js"></script>
+    
+    <!-- Music Toggle Script -->
+    <script>
+        const bgMusic = document.getElementById('bgMusic');
+        const musicToggle = document.getElementById('musicToggle');
+        let isPlaying = false;
+
+        function playMusic() {
+            bgMusic.play().then(() => {
+                isPlaying = true;
+                musicToggle.textContent = '🔊';
+                musicToggle.title = 'Pause Music';
+            }).catch(() => {});
+        }
+
+        function pauseMusic() {
+            bgMusic.pause();
+            isPlaying = false;
+            musicToggle.textContent = '🔇';
+            musicToggle.title = 'Play Music';
+        }
+
+        musicToggle.addEventListener('click', () => {
+            if (isPlaying) {
+                pauseMusic();
+            } else {
+                playMusic();
+            }
+        });
+
+        // Try autoplay immediately on page load
+        playMusic();
+
+        // Also try on any user interaction (scroll, click, keypress, touch)
+        ['click', 'scroll', 'keydown', 'touchstart', 'mousemove'].forEach(event => {
+            document.addEventListener(event, () => {
+                if (!isPlaying) {
+                    playMusic();
+                }
+            }, { once: true });
+        });
+    </script>
+    </script>
 </body>
 
 </html>
