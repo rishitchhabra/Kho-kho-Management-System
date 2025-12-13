@@ -117,15 +117,73 @@
 
         <!-- Users Tab (Admin Only) -->
         <section id="usersTab" class="tab-content">
-            <div class="section-header">
-                <h2>👤 User Management</h2>
-                <button id="createUserBtn" class="btn-primary" style="display: none;">+ Add User</button>
+            <!-- Sub-tabs for Users section -->
+            <nav class="sub-tab-nav">
+                <button class="sub-tab-btn active" data-subtab="users-list">👤 Users</button>
+                <button class="sub-tab-btn" data-subtab="login-logs">🔐 Login Logs</button>
+                <button class="sub-tab-btn" data-subtab="activity-logs">📋 Activity</button>
+            </nav>
+
+            <!-- Users List Sub-tab -->
+            <div id="users-list" class="sub-tab-content active">
+                <div class="section-header">
+                    <h2>👤 User Management</h2>
+                    <button id="createUserBtn" class="btn-primary" style="display: none;">+ Add User</button>
+                </div>
+                <div id="userGrid" class="user-grid"></div>
+                <div id="userEmptyState" class="empty-state" hidden>
+                    <div class="empty-icon">👤</div>
+                    <h3>No users found</h3>
+                    <p>Add users to manage the system.</p>
+                </div>
             </div>
-            <div id="userGrid" class="user-grid"></div>
-            <div id="userEmptyState" class="empty-state" hidden>
-                <div class="empty-icon">👤</div>
-                <h3>No users found</h3>
-                <p>Add users to manage the system.</p>
+
+            <!-- Login Logs Sub-tab -->
+            <div id="login-logs" class="sub-tab-content">
+                <div class="section-header">
+                    <h2>🔐 Login History</h2>
+                    <button id="refreshLoginLogs" class="btn-secondary">🔄 Refresh</button>
+                </div>
+                <div class="log-filters">
+                    <select id="loginLogFilter">
+                        <option value="all">All Actions</option>
+                        <option value="login">Logins Only</option>
+                        <option value="logout">Logouts Only</option>
+                        <option value="failed">Failed Attempts</option>
+                    </select>
+                    <input type="text" id="loginLogSearch" placeholder="Search by username...">
+                </div>
+                <div id="loginLogsContainer" class="logs-container">
+                    <div class="loading-state"><div class="spinner"></div><p>Loading logs...</p></div>
+                </div>
+            </div>
+
+            <!-- Activity Logs Sub-tab -->
+            <div id="activity-logs" class="sub-tab-content">
+                <div class="section-header">
+                    <h2>📋 Activity Log</h2>
+                    <button id="refreshActivityLogs" class="btn-secondary">🔄 Refresh</button>
+                </div>
+                <div class="log-filters">
+                    <select id="activityModuleFilter">
+                        <option value="all">All Modules</option>
+                        <option value="teams">👥 Teams</option>
+                        <option value="pools">🏊 Pools</option>
+                        <option value="matches">⚔️ Matches</option>
+                        <option value="users">👤 Users</option>
+                        <option value="session">🔐 Session</option>
+                    </select>
+                    <select id="activityActionFilter">
+                        <option value="all">All Actions</option>
+                        <option value="create">Create</option>
+                        <option value="update">Update</option>
+                        <option value="delete">Delete</option>
+                    </select>
+                    <input type="text" id="activityLogSearch" placeholder="Search activity...">
+                </div>
+                <div id="activityLogsContainer" class="logs-container">
+                    <div class="loading-state"><div class="spinner"></div><p>Loading activity...</p></div>
+                </div>
             </div>
         </section>
     </main>
@@ -502,7 +560,7 @@
             document.getElementById("createUserBtn").style.display = "inline-flex";
         }
         // Logout handler
-        document.getElementById("logoutBtn")?.addEventListener("click", logout);
+        document.getElementById("logoutBtn")?.addEventListener("click", () => logout('manual'));
         // Show current user name and role
         const session = getSession();
         if (session) {
@@ -511,6 +569,8 @@
             userInfo.textContent = "👤 " + (session.displayName || session.username) + " (" + session.role + ")";
             document.querySelector(".header-right")?.prepend(userInfo);
         }
+        // Initialize auto-logout (10 minutes of inactivity)
+        initAutoLogout();
     </script>
     <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

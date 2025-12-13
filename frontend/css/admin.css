@@ -180,6 +180,36 @@ body[data-theme="light"] .pool-badge {
     color: var(--accent);
 }
 
+body[data-theme="light"] .udise-badge.udise-verified {
+    background: rgba(34, 197, 94, 0.15);
+    color: #16a34a;
+    box-shadow: none;
+}
+
+body[data-theme="light"] .udise-badge.udise-pending {
+    background: rgba(239, 68, 68, 0.15);
+    color: #dc2626;
+    box-shadow: none;
+}
+
+body[data-theme="light"] .player-udise.verified {
+    background: rgba(34, 197, 94, 0.2);
+}
+
+body[data-theme="light"] .player-udise.pending {
+    background: rgba(239, 68, 68, 0.2);
+}
+
+body[data-theme="light"] .udise-status-badge.udise-verified {
+    background: rgba(34, 197, 94, 0.15);
+    border-color: rgba(34, 197, 94, 0.4);
+}
+
+body[data-theme="light"] .udise-status-badge.udise-pending {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.4);
+}
+
 body[data-theme="light"] .theme-toggle-btn {
     background: #e2e8f0;
     color: #1e293b;
@@ -681,6 +711,79 @@ main {
     font-weight: 600;
     background: rgba(255, 255, 255, 0.1);
     color: var(--text-muted);
+}
+
+/* UDISE Status Badge */
+.udise-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 10px;
+    font-size: 0.7rem;
+    border-radius: 999px;
+    font-weight: 700;
+    min-width: 20px;
+}
+
+.udise-badge.udise-verified {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(34, 197, 94, 0.4);
+}
+
+.udise-badge.udise-pending {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+}
+
+/* Player UDISE indicator */
+.player-udise {
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-left: auto;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.player-udise.verified {
+    color: #22c55e;
+    background: rgba(34, 197, 94, 0.15);
+}
+
+.player-udise.pending {
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.15);
+}
+
+/* Card footer with UDISE status */
+.card-footer {
+    margin-top: 12px;
+    display: flex;
+    justify-content: flex-start;
+}
+
+/* UDISE status badge (bottom-left of card) */
+.udise-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.udise-status-badge.udise-verified {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(22, 163, 74, 0.2));
+    color: #22c55e;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.udise-status-badge.udise-pending {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(220, 38, 38, 0.2));
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
 .card-actions {
@@ -2194,4 +2297,353 @@ body[data-theme="light"] .view-team-badges .pool-badge {
     height: 18px;
     accent-color: var(--accent);
     cursor: pointer;
+}
+
+/* ==================== SUB-TABS FOR USERS SECTION ==================== */
+.sub-tab-nav {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 6px;
+    border-radius: 12px;
+    width: fit-content;
+}
+
+.sub-tab-btn {
+    padding: 10px 20px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.sub-tab-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text);
+}
+
+.sub-tab-btn.active {
+    background: var(--accent);
+    color: white;
+}
+
+.sub-tab-content {
+    display: none;
+}
+
+.sub-tab-content.active {
+    display: block;
+}
+
+/* ==================== LOGS STYLES ==================== */
+.log-filters {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.log-filters select,
+.log-filters input {
+    padding: 10px 14px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.2);
+    color: var(--text);
+    font-size: 0.9rem;
+    min-width: 150px;
+}
+
+.log-filters input {
+    flex: 1;
+    min-width: 200px;
+}
+
+.log-filters select:focus,
+.log-filters input:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+.logs-container {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    overflow: hidden;
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.log-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.log-table th,
+.log-table td {
+    padding: 14px 16px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.log-table th {
+    background: rgba(0, 0, 0, 0.3);
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    position: sticky;
+    top: 0;
+}
+
+.log-table tr:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.log-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.log-status.success {
+    background: rgba(34, 197, 94, 0.15);
+    color: var(--success);
+}
+
+.log-status.failed {
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--danger);
+}
+
+.log-status.login {
+    background: rgba(99, 102, 241, 0.15);
+    color: var(--accent);
+}
+
+.log-status.logout {
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--warning);
+}
+
+.log-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.log-action.create {
+    background: rgba(34, 197, 94, 0.15);
+    color: var(--success);
+}
+
+.log-action.update {
+    background: rgba(99, 102, 241, 0.15);
+    color: var(--accent);
+}
+
+.log-action.delete {
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--danger);
+}
+
+.log-action.view {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-muted);
+}
+
+.log-module {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.log-timestamp {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+
+.log-user {
+    font-weight: 500;
+}
+
+.log-description {
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.logs-empty {
+    padding: 60px 20px;
+    text-align: center;
+    color: var(--text-muted);
+}
+
+.logs-empty .empty-icon {
+    font-size: 3rem;
+    margin-bottom: 12px;
+}
+
+.logs-empty.permission-denied {
+    background: rgba(239, 68, 68, 0.05);
+    border: 1px dashed rgba(239, 68, 68, 0.3);
+    border-radius: var(--radius);
+    margin: 20px;
+}
+
+.logs-empty.permission-denied .empty-icon {
+    font-size: 4rem;
+    margin-bottom: 16px;
+}
+
+.logs-empty.permission-denied h3 {
+    color: var(--danger);
+    font-size: 1.3rem;
+    margin-bottom: 8px;
+}
+
+.logs-empty.permission-denied p {
+    color: var(--text-muted);
+    line-height: 1.6;
+}
+
+/* ==================== AUTO-LOGOUT WARNING ==================== */
+.auto-logout-warning {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    backdrop-filter: blur(8px);
+}
+
+.auto-logout-content {
+    background: var(--card-bg);
+    padding: 40px;
+    border-radius: var(--radius);
+    text-align: center;
+    max-width: 400px;
+    box-shadow: var(--shadow);
+    animation: popIn 0.3s ease;
+}
+
+@keyframes popIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.auto-logout-icon {
+    font-size: 4rem;
+    margin-bottom: 16px;
+}
+
+.auto-logout-content h3 {
+    font-size: 1.5rem;
+    margin-bottom: 12px;
+    color: var(--warning);
+}
+
+.auto-logout-content p {
+    color: var(--text-muted);
+    margin-bottom: 24px;
+    line-height: 1.6;
+}
+
+.auto-logout-content #logoutCountdown {
+    font-weight: 700;
+    color: var(--danger);
+    font-size: 1.1em;
+}
+
+.auto-logout-content .btn-primary {
+    padding: 14px 32px;
+    font-size: 1rem;
+}
+
+/* ==================== LIGHT THEME FOR LOGS ==================== */
+body[data-theme="light"] .sub-tab-nav {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+body[data-theme="light"] .sub-tab-btn {
+    color: #64748b;
+}
+
+body[data-theme="light"] .sub-tab-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: #1e293b;
+}
+
+body[data-theme="light"] .sub-tab-btn.active {
+    background: var(--accent);
+    color: white;
+}
+
+body[data-theme="light"] .log-filters select,
+body[data-theme="light"] .log-filters input {
+    background: white;
+    border-color: #e2e8f0;
+    color: #1e293b;
+}
+
+body[data-theme="light"] .logs-container {
+    background: white;
+    border: 1px solid #e2e8f0;
+}
+
+body[data-theme="light"] .log-table th {
+    background: #f8fafc;
+    color: #64748b;
+}
+
+body[data-theme="light"] .log-table td {
+    border-bottom-color: #e2e8f0;
+}
+
+body[data-theme="light"] .log-table tr:hover {
+    background: #f8fafc;
+}
+
+body[data-theme="light"] .log-module {
+    background: #e2e8f0;
+    color: #1e293b;
+}
+
+body[data-theme="light"] .log-timestamp {
+    color: #64748b;
+}
+
+body[data-theme="light"] .auto-logout-content {
+    background: white;
+    color: #1e293b;
 }
