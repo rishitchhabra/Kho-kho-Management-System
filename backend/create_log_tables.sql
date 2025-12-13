@@ -102,12 +102,3 @@ UPDATE matches
 SET match_number = match_order 
 WHERE match_number IS NULL AND match_order IS NOT NULL;
 
--- Or to renumber all matches sequentially by team_type:
--- WITH numbered AS (
---     SELECT id, ROW_NUMBER() OVER (PARTITION BY team_type ORDER BY created_at, id) as new_num
---     FROM matches
--- )
--- UPDATE matches m
--- SET match_number = n.new_num
--- FROM numbered n
--- WHERE m.id = n.id;
