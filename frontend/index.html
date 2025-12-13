@@ -72,7 +72,7 @@
                     <option value="Pool B">Pool B</option>
                 </select>
             </div>
-            <div id="teamGrid" class="teams-carousel" aria-live="polite">
+            <div id="teamGrid" class="teams-carousel scroll-reveal" aria-live="polite">
                 <div class="loading-state">
                     <div class="spinner"></div>
                     <p>Loading teams...</p>
@@ -155,7 +155,81 @@
                 }
             }, { once: true });
         });
-    </script>
+
+        // Horizontal scroll on vertical scroll for teams section
+        const teamsCarousel = document.getElementById('teamGrid');
+        const teamsSection = document.querySelector('.teams-section');
+        
+        if (teamsCarousel && teamsSection) {
+            let isInTeamsSection = false;
+            let hasScrolledToEnd = false;
+            
+            // Check if teams section is at the bottom of the page
+            const isAtBottom = () => {
+                return (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 100;
+            };
+            
+            // Check if carousel is fully scrolled
+            const isCarouselAtEnd = () => {
+                return teamsCarousel.scrollLeft >= (teamsCarousel.scrollWidth - teamsCarousel.clientWidth - 10);
+            };
+            
+            const isCarouselAtStart = () => {
+                return teamsCarousel.scrollLeft <= 10;
+            };
+            
+            // Handle wheel event for horizontal scroll hijacking
+            let scrollAccumulator = 0;
+            let scrollRAF = null;
+            
+            const smoothHorizontalScroll = () => {
+                if (Math.abs(scrollAccumulator) > 0.5) {
+                    const scrollAmount = scrollAccumulator * 0.15;
+                    teamsCarousel.scrollLeft += scrollAmount;
+                    scrollAccumulator -= scrollAmount;
+                    scrollRAF = requestAnimationFrame(smoothHorizontalScroll);
+                } else {
+                    scrollAccumulator = 0;
+                    scrollRAF = null;
+                }
+            };
+            
+            window.addEventListener('wheel', (e) => {
+                const rect = teamsSection.getBoundingClientRect();
+                const sectionVisible = rect.top < window.innerHeight && rect.bottom > 0;
+                const atPageBottom = isAtBottom();
+                
+                // Only hijack scroll when at bottom and teams section is visible
+                if (atPageBottom && sectionVisible && teamsCarousel.scrollWidth > teamsCarousel.clientWidth) {
+                    const scrollingDown = e.deltaY > 0;
+                    const scrollingUp = e.deltaY < 0;
+                    
+                    // Scrolling down - scroll carousel right
+                    if (scrollingDown && !isCarouselAtEnd()) {
+                        e.preventDefault();
+                        scrollAccumulator += e.deltaY * 0.5;
+                        if (!scrollRAF) scrollRAF = requestAnimationFrame(smoothHorizontalScroll);
+                    }
+                    // Scrolling up - scroll carousel left, then allow page scroll
+                    else if (scrollingUp && !isCarouselAtStart()) {
+                        e.preventDefault();
+                        scrollAccumulator += e.deltaY * 0.5;
+                        if (!scrollRAF) scrollRAF = requestAnimationFrame(smoothHorizontalScroll);
+                    }
+                }
+            }, { passive: false });
+            
+            // Add revealed class when section comes into view
+            teamsCarousel.classList.add('scroll-reveal');
+            const revealObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('revealed');
+                    }
+                });
+            }, { threshold: 0.1 });
+            revealObserver.observe(teamsCarousel);
+        }
     </script>
 </body>
 
